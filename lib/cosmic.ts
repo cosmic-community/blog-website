@@ -1,4 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
+import { Post } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -139,5 +140,40 @@ export async function getPostsByAuthor(authorId: string) {
       return [];
     }
     throw new Error('Failed to fetch posts by author');
+  }
+}
+
+// Search posts (server-side)
+export async function searchPosts(query: string) {
+  try {
+    const response = await cosmic.objects
+      .find({ type: 'posts' })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+
+    const allPosts = response.objects || []
+    
+    if (!query || query.trim().length < 2) {
+      return []
+    }
+
+    // Filter posts based on query
+    const searchQuery = query.toLowerCase().trim()
+    const filteredPosts = allPosts.filter((post: Post) => {
+      const title = (post.metadata?.title || post.title || '').toLowerCase()
+      const excerpt = (post.metadata?.excerpt || '').toLowerCase()
+      const content = (post.metadata?.content || '').toLowerCase()
+      
+      return title.includes(searchQuery) || 
+             excerpt.includes(searchQuery) || 
+             content.includes(searchQuery)
+    })
+
+    return filteredPosts
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return [];
+    }
+    throw new Error('Failed to search posts');
   }
 }

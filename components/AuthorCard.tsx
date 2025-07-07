@@ -43,13 +43,13 @@ export default function AuthorCard({
       <div className="flex-1 min-w-0">
         <Link
           href={`/authors/${author.slug}`}
-          className={`${textSize} font-medium text-gray-900 hover:text-blue-600 transition-colors`}
+          className={`${textSize} font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors`}
         >
           {author.metadata?.name || author.title}
         </Link>
         
         {showBio && author.metadata?.bio && (
-          <p className="text-gray-600 mt-1 leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
             {author.metadata.bio}
           </p>
         )}
@@ -61,7 +61,7 @@ export default function AuthorCard({
                 href={author.metadata.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
               >
                 Website
               </a>
@@ -72,7 +72,7 @@ export default function AuthorCard({
                 href={`https://twitter.com/${author.metadata.twitter}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-500 hover:text-blue-500 transition-colors"
+                className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               >
                 Twitter
               </a>
@@ -83,7 +83,7 @@ export default function AuthorCard({
                 href={author.metadata.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-500 hover:text-blue-600 transition-colors"
+                className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 LinkedIn
               </a>

@@ -13,7 +13,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
     (post.metadata?.content ? getExcerpt(post.metadata.content, 200) : '')
 
   return (
-    <article className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <article className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
         {post.metadata?.featured_image && (
           <div className="relative">
@@ -43,17 +43,17 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
             </div>
           )}
           
-          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4">
             <Link 
               href={`/posts/${post.slug}`}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               {post.title}
             </Link>
           </h2>
           
           {excerpt && (
-            <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed">
               {excerpt}
             </p>
           )}
@@ -63,7 +63,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
               <AuthorCard author={post.metadata.author} showBio={false} />
             )}
             
-            <time className="text-gray-500">
+            <time className="text-gray-500 dark:text-gray-400">
               {post.metadata?.publication_date 
                 ? formatDate(post.metadata.publication_date)
                 : formatDate(post.created_at)
@@ -74,7 +74,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
           <div className="mt-6">
             <Link
               href={`/posts/${post.slug}`}
-              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+              className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
             >
               Read more
               <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -38,12 +38,12 @@ export default async function PostPage({ params }: PostPageProps) {
             )}
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             {post.title}
           </h1>
           
           {post.metadata?.excerpt && (
-            <p className="text-xl text-gray-600 mb-6">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
               {post.metadata.excerpt}
             </p>
           )}
@@ -53,7 +53,7 @@ export default async function PostPage({ params }: PostPageProps) {
               <AuthorCard author={post.metadata.author} showBio={false} />
             )}
             
-            <time className="text-gray-500">
+            <time className="text-gray-500 dark:text-gray-400">
               {post.metadata?.publication_date 
                 ? formatDate(post.metadata.publication_date)
                 : formatDate(post.created_at)
@@ -77,14 +77,14 @@ export default async function PostPage({ params }: PostPageProps) {
 
         {/* Content */}
         <div 
-          className="prose prose-lg max-w-none"
+          className="prose prose-lg max-w-none dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: htmlContent }}
         />
 
         {/* Author Bio */}
         {post.metadata?.author && (
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">About the Author</h3>
+          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">About the Author</h3>
             <AuthorCard author={post.metadata.author} showBio={true} />
           </div>
         )}
