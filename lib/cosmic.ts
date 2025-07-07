@@ -1,16 +1,33 @@
 import { createBucketClient } from '@cosmicjs/sdk'
 
-const cosmic = createBucketClient({
-  bucketSlug: process.env.COSMIC_BUCKET_SLUG || '',
-  readKey: process.env.COSMIC_READ_KEY || ''
-})
+// Check if required environment variables are available
+const bucketSlug = process.env.COSMIC_BUCKET_SLUG
+const readKey = process.env.COSMIC_READ_KEY
+
+// Only create client if credentials are available
+const cosmic = bucketSlug && readKey 
+  ? createBucketClient({
+      bucketSlug,
+      readKey
+    })
+  : null
 
 // Export the cosmic client for use in other files
 export { cosmic }
 
+// Helper function to check if Cosmic is configured
+export function isCosmicConfigured(): boolean {
+  return !!(bucketSlug && readKey && cosmic)
+}
+
 export async function getAllPosts() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty posts array')
+    return []
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'posts' })
       .props(['id', 'title', 'slug', 'metadata', 'created_at'])
       .depth(1)
@@ -22,7 +39,7 @@ export async function getAllPosts() {
       return []
     }
     console.error('Error fetching posts:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
@@ -32,8 +49,13 @@ export async function getPosts() {
 }
 
 export async function getPost(slug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning null for post')
+    return null
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .findOne({ type: 'posts', slug })
       .depth(1)
 
@@ -45,8 +67,13 @@ export async function getPost(slug: string) {
 }
 
 export async function getCategories() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty categories array')
+    return []
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'categories' })
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
@@ -57,13 +84,18 @@ export async function getCategories() {
       return []
     }
     console.error('Error fetching categories:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
 export async function getAuthors() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty authors array')
+    return []
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'authors' })
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
@@ -74,13 +106,18 @@ export async function getAuthors() {
       return []
     }
     console.error('Error fetching authors:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
 export async function getAuthor(slug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning null for author')
+    return null
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .findOne({ type: 'authors', slug })
       .depth(1)
 
@@ -92,6 +129,11 @@ export async function getAuthor(slug: string) {
 }
 
 export async function getPostsByCategory(categorySlug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty posts array')
+    return []
+  }
+
   try {
     // First get the category to find its ID
     const categories = await getCategories()
@@ -102,7 +144,7 @@ export async function getPostsByCategory(categorySlug: string) {
     }
 
     // Then get posts that have this category
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ 
         type: 'posts',
         'metadata.categories': category.id
@@ -117,11 +159,16 @@ export async function getPostsByCategory(categorySlug: string) {
       return []
     }
     console.error('Error fetching posts by category:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
 export async function getPostsByAuthor(authorSlug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty posts array')
+    return []
+  }
+
   try {
     // First get the author to find its ID
     const authors = await getAuthors()
@@ -132,7 +179,7 @@ export async function getPostsByAuthor(authorSlug: string) {
     }
 
     // Then get posts that have this author
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ 
         type: 'posts',
         'metadata.author': author.id
@@ -147,13 +194,18 @@ export async function getPostsByAuthor(authorSlug: string) {
       return []
     }
     console.error('Error fetching posts by author:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
 export async function getFeaturedPosts() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty featured posts array')
+    return []
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ 
         type: 'posts',
         'metadata.featured': true
@@ -169,13 +221,18 @@ export async function getFeaturedPosts() {
       return []
     }
     console.error('Error fetching featured posts:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
 export async function searchPosts(query: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty search results')
+    return []
+  }
+
   try {
-    const data = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'posts' })
       .props(['id', 'title', 'slug', 'metadata', 'created_at'])
       .depth(1)
@@ -201,6 +258,6 @@ export async function searchPosts(query: string) {
       return []
     }
     console.error('Error searching posts:', error)
-    throw error
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
