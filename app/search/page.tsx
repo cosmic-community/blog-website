@@ -1,66 +1,10 @@
 import { Suspense } from 'react'
-import { cosmic } from '@/lib/cosmic'
+import { searchPosts } from '@/lib/cosmic'
 import { Post } from '@/types'
 import SearchResults from '@/components/SearchResults'
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>
-}
-
-async function searchPosts(query: string): Promise<{ posts: Post[]; total: number }> {
-  if (!query || query.trim().length < 2) {
-    return { posts: [], total: 0 }
-  }
-
-  try {
-    // Fetch all posts and filter server-side
-    const response = await cosmic.objects
-      .find({ type: 'posts' })
-      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
-      .depth(1)
-
-    const allPosts = response.objects || []
-    
-    // Filter posts based on query
-    const searchQuery = query.toLowerCase().trim()
-    const filteredPosts = allPosts.filter((post: Post) => {
-      const title = (post.metadata?.title || post.title || '').toLowerCase()
-      const excerpt = (post.metadata?.excerpt || '').toLowerCase()
-      const content = (post.metadata?.content || '').toLowerCase()
-      
-      return title.includes(searchQuery) || 
-             excerpt.includes(searchQuery) || 
-             content.includes(searchQuery)
-    })
-
-    // Sort by relevance
-    const sortedPosts = filteredPosts.sort((a: Post, b: Post) => {
-      const aTitle = (a.metadata?.title || a.title || '').toLowerCase()
-      const bTitle = (b.metadata?.title || b.title || '').toLowerCase()
-      const aExcerpt = (a.metadata?.excerpt || '').toLowerCase()
-      const bExcerpt = (b.metadata?.excerpt || '').toLowerCase()
-
-      const aTitleMatch = aTitle.includes(searchQuery)
-      const bTitleMatch = bTitle.includes(searchQuery)
-      const aExcerptMatch = aExcerpt.includes(searchQuery)
-      const bExcerptMatch = bExcerpt.includes(searchQuery)
-
-      if (aTitleMatch && !bTitleMatch) return -1
-      if (!aTitleMatch && bTitleMatch) return 1
-      if (aExcerptMatch && !bExcerptMatch) return -1
-      if (!aExcerptMatch && bExcerptMatch) return 1
-      
-      return 0
-    })
-
-    return { 
-      posts: sortedPosts as Post[],
-      total: sortedPosts.length 
-    }
-  } catch (error) {
-    console.error('Search error:', error)
-    return { posts: [], total: 0 }
-  }
 }
 
 function SearchLoading() {
@@ -84,11 +28,11 @@ function SearchLoading() {
 }
 
 async function SearchPageContent({ query }: { query: string }) {
-  const { posts, total } = await searchPosts(query)
+  const posts = await searchPosts(query)
 
   return (
     <div className="container py-12">
-      <SearchResults posts={posts} query={query} total={total} />
+      <SearchResults posts={posts as Post[]} query={query} total={posts.length} />
     </div>
   )
 }

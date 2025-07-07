@@ -5,6 +5,9 @@ const cosmic = createBucketClient({
   readKey: process.env.COSMIC_READ_KEY || ''
 })
 
+// Export the cosmic client for use in other files
+export { cosmic }
+
 export async function getAllPosts() {
   try {
     const data = await cosmic.objects
@@ -14,13 +17,18 @@ export async function getAllPosts() {
       .sort('-created_at')
 
     return data.objects || []
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error fetching posts:', error)
     throw error
   }
+}
+
+// Add getPosts function that app/page.tsx is trying to import
+export async function getPosts() {
+  return getAllPosts()
 }
 
 export async function getPost(slug: string) {
@@ -30,7 +38,7 @@ export async function getPost(slug: string) {
       .depth(1)
 
     return data.object
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching post:', error)
     return null
   }
@@ -44,8 +52,8 @@ export async function getCategories() {
       .depth(1)
 
     return data.objects || []
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error fetching categories:', error)
@@ -61,8 +69,8 @@ export async function getAuthors() {
       .depth(1)
 
     return data.objects || []
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error fetching authors:', error)
@@ -77,7 +85,7 @@ export async function getAuthor(slug: string) {
       .depth(1)
 
     return data.object
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching author:', error)
     return null
   }
@@ -87,7 +95,7 @@ export async function getPostsByCategory(categorySlug: string) {
   try {
     // First get the category to find its ID
     const categories = await getCategories()
-    const category = categories.find((cat) => cat.slug === categorySlug)
+    const category = categories.find((cat: any) => cat.slug === categorySlug)
     
     if (!category) {
       return []
@@ -104,8 +112,8 @@ export async function getPostsByCategory(categorySlug: string) {
       .sort('-created_at')
 
     return data.objects || []
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error fetching posts by category:', error)
@@ -117,7 +125,7 @@ export async function getPostsByAuthor(authorSlug: string) {
   try {
     // First get the author to find its ID
     const authors = await getAuthors()
-    const author = authors.find((auth) => auth.slug === authorSlug)
+    const author = authors.find((auth: any) => auth.slug === authorSlug)
     
     if (!author) {
       return []
@@ -134,8 +142,8 @@ export async function getPostsByAuthor(authorSlug: string) {
       .sort('-created_at')
 
     return data.objects || []
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error fetching posts by author:', error)
@@ -156,8 +164,8 @@ export async function getFeaturedPosts() {
       .limit(3)
 
     return data.objects || []
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error fetching featured posts:', error)
@@ -176,7 +184,7 @@ export async function searchPosts(query: string) {
     const posts = data.objects || []
     
     // Filter posts based on search query
-    const filteredPosts = posts.filter((post) => {
+    const filteredPosts = posts.filter((post: any) => {
       const title = post.title?.toLowerCase() || ''
       const excerpt = post.metadata?.excerpt?.toLowerCase() || ''
       const content = post.metadata?.content?.toLowerCase() || ''
@@ -188,8 +196,8 @@ export async function searchPosts(query: string) {
     })
 
     return filteredPosts
-  } catch (error) {
-    if (error.status === 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
       return []
     }
     console.error('Error searching posts:', error)
