@@ -23,7 +23,7 @@ async function searchPosts(query: string): Promise<{ posts: Post[]; total: numbe
     
     // Filter posts based on query
     const searchQuery = query.toLowerCase().trim()
-    const filteredPosts = allPosts.filter(post => {
+    const filteredPosts = allPosts.filter((post: Post) => {
       const title = (post.metadata?.title || post.title || '').toLowerCase()
       const excerpt = (post.metadata?.excerpt || '').toLowerCase()
       const content = (post.metadata?.content || '').toLowerCase()
@@ -34,7 +34,7 @@ async function searchPosts(query: string): Promise<{ posts: Post[]; total: numbe
     })
 
     // Sort by relevance
-    const sortedPosts = filteredPosts.sort((a, b) => {
+    const sortedPosts = filteredPosts.sort((a: Post, b: Post) => {
       const aTitle = (a.metadata?.title || a.title || '').toLowerCase()
       const bTitle = (b.metadata?.title || b.title || '').toLowerCase()
       const aExcerpt = (a.metadata?.excerpt || '').toLowerCase()

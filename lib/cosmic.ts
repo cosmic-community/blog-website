@@ -1,4 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
+import { Post } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -158,7 +159,7 @@ export async function searchPosts(query: string) {
 
     // Filter posts based on query
     const searchQuery = query.toLowerCase().trim()
-    const filteredPosts = allPosts.filter(post => {
+    const filteredPosts = allPosts.filter((post: Post) => {
       const title = (post.metadata?.title || post.title || '').toLowerCase()
       const excerpt = (post.metadata?.excerpt || '').toLowerCase()
       const content = (post.metadata?.content || '').toLowerCase()
