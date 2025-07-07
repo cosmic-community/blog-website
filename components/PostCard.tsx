@@ -13,7 +13,7 @@ export default function PostCard({ post }: PostCardProps) {
     (post.metadata?.content ? getExcerpt(post.metadata.content) : '')
 
   return (
-    <article className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <article className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md dark:hover:shadow-lg transition-all">
       {post.metadata?.featured_image && (
         <Link href={`/posts/${post.slug}`}>
           <img
@@ -35,17 +35,17 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         )}
         
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           <Link 
             href={`/posts/${post.slug}`}
-            className="hover:text-blue-600 transition-colors"
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             {post.title}
           </Link>
         </h2>
         
         {excerpt && (
-          <p className="text-gray-600 mb-4 line-clamp-3">
+          <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
             {excerpt}
           </p>
         )}
@@ -55,7 +55,7 @@ export default function PostCard({ post }: PostCardProps) {
             <AuthorCard author={post.metadata.author} showBio={false} size="sm" />
           )}
           
-          <time className="text-sm text-gray-500">
+          <time className="text-sm text-gray-500 dark:text-gray-400">
             {post.metadata?.publication_date 
               ? formatDate(post.metadata.publication_date)
               : formatDate(post.created_at)

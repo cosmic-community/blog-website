@@ -30,7 +30,7 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           Posts by {author.metadata?.name || author.title}
         </h2>
       </div>
@@ -43,7 +43,7 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-gray-600">No posts found by this author.</p>
+          <p className="text-gray-600 dark:text-gray-400">No posts found by this author.</p>
         </div>
       )}
     </div>

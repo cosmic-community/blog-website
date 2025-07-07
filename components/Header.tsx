@@ -7,17 +7,17 @@ export default async function Header() {
   const categories = categoriesData as Category[]
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 backdrop-blur-sm bg-white/95">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm transition-colors">
       <div className="container">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-xl font-bold text-gray-900">
+          <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
             Blog Website
           </Link>
           
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               href="/" 
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               Home
             </Link>
@@ -26,7 +26,7 @@ export default async function Header() {
               <Link
                 key={category.id}
                 href={`/categories/${category.slug}`}
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 {category.metadata?.name || category.title}
               </Link>
@@ -35,7 +35,7 @@ export default async function Header() {
           
           {/* Mobile menu button - simplified */}
           <div className="md:hidden">
-            <button className="text-gray-600 hover:text-gray-900">
+            <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>

@@ -4,6 +4,7 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -13,6 +14,13 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+          },
+        },
       },
     },
   },
