@@ -14,6 +14,8 @@
     "@cosmicjs/sdk": "^1.5.5",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.0.18",
+    "date-fns": "^3.6.0",
+    "marked": "^12.0.0",
     "next": "15.1.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -22,6 +24,7 @@
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
+    "@types/marked": "^12.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
