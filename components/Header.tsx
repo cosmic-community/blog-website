@@ -7,7 +7,7 @@ export default async function Header() {
   const categories = categoriesData as Category[]
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 backdrop-blur-sm bg-white/95">
       <div className="container">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="text-xl font-bold text-gray-900">
