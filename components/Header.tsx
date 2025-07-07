@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getCategories } from '@/lib/cosmic'
 import { Category } from '@/types'
+import SearchInput from './SearchInput'
 
 export default async function Header() {
   const categoriesData = await getCategories()
@@ -14,6 +15,7 @@ export default async function Header() {
             Blog Website
           </Link>
           
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               href="/" 
@@ -32,14 +34,19 @@ export default async function Header() {
               </Link>
             ))}
           </nav>
-          
-          {/* Mobile menu button - simplified */}
-          <div className="md:hidden">
-            <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+
+          {/* Search Input */}
+          <div className="flex items-center space-x-4">
+            <SearchInput />
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
