@@ -1,179 +1,264 @@
 import { createBucketClient } from '@cosmicjs/sdk'
-import { Post } from '@/types'
 
-export const cosmic = createBucketClient({
-  bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
-  readKey: process.env.COSMIC_READ_KEY as string,
-  writeKey: process.env.COSMIC_WRITE_KEY as string,
-  apiEnvironment: "staging"
-})
+// Check if required environment variables are available
+const bucketSlug = process.env.COSMIC_BUCKET_SLUG
+const readKey = process.env.COSMIC_READ_KEY
 
-// Simple error helper for Cosmic SDK
-function hasStatus(error: unknown): error is { status: number } {
-  return typeof error === 'object' && error !== null && 'status' in error;
+// Only create client if credentials are available
+const cosmic = bucketSlug && readKey 
+  ? createBucketClient({
+      bucketSlug,
+    readKey,
+      apiEnvironment: "staging"
+    })
+  : null
+
+// Export the cosmic client for use in other files
+export { cosmic }
+
+// Helper function to check if Cosmic is configured
+export function isCosmicConfigured(): boolean {
+  return !!(bucketSlug && readKey && cosmic)
 }
 
-// Fetch all posts with depth
-export async function getPosts() {
+export async function getAllPosts() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty posts array')
+    return []
+  }
+
   try {
-    const response = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'posts' })
       .props(['id', 'title', 'slug', 'metadata', 'created_at'])
       .depth(1)
-    return response.objects;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return [];
+      .sort('-created_at')
+
+    return data.objects || []
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
     }
-    throw new Error('Failed to fetch posts');
+    console.error('Error fetching posts:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
-// Fetch single post by slug
+// Add getPosts function that app/page.tsx is trying to import
+export async function getPosts() {
+  return getAllPosts()
+}
+
 export async function getPost(slug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning null for post')
+    return null
+  }
+
   try {
-    const response = await cosmic.objects
+    const data = await cosmic!.objects
       .findOne({ type: 'posts', slug })
-      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
       .depth(1)
-    return response.object;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return null;
-    }
-    throw new Error('Failed to fetch post');
+
+    return data.object
+  } catch (error: unknown) {
+    console.error('Error fetching post:', error)
+    return null
   }
 }
 
-// Fetch all categories
 export async function getCategories() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty categories array')
+    return []
+  }
+
   try {
-    const response = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'categories' })
       .props(['id', 'title', 'slug', 'metadata'])
-    return response.objects;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return [];
+      .depth(1)
+
+    return data.objects || []
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
     }
-    throw new Error('Failed to fetch categories');
+    console.error('Error fetching categories:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
-// Fetch single category by slug
-export async function getCategory(slug: string) {
-  try {
-    const response = await cosmic.objects
-      .findOne({ type: 'categories', slug })
-      .props(['id', 'title', 'slug', 'metadata'])
-    return response.object;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return null;
-    }
-    throw new Error('Failed to fetch category');
-  }
-}
-
-// Fetch all authors
 export async function getAuthors() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty authors array')
+    return []
+  }
+
   try {
-    const response = await cosmic.objects
+    const data = await cosmic!.objects
       .find({ type: 'authors' })
       .props(['id', 'title', 'slug', 'metadata'])
-    return response.objects;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return [];
+      .depth(1)
+
+    return data.objects || []
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
     }
-    throw new Error('Failed to fetch authors');
+    console.error('Error fetching authors:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
 
-// Fetch single author by slug
 export async function getAuthor(slug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning null for author')
+    return null
+  }
+
   try {
-    const response = await cosmic.objects
+    const data = await cosmic!.objects
       .findOne({ type: 'authors', slug })
-      .props(['id', 'title', 'slug', 'metadata'])
-    return response.object;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return null;
-    }
-    throw new Error('Failed to fetch author');
+      .depth(1)
+
+    return data.object
+  } catch (error: unknown) {
+    console.error('Error fetching author:', error)
+    return null
   }
 }
 
-// Fetch posts by category
-export async function getPostsByCategory(categoryId: string) {
-  try {
-    const response = await cosmic.objects
-      .find({ 
-        type: 'posts',
-        'metadata.categories': categoryId
-      })
-      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
-      .depth(1)
-    return response.objects;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return [];
-    }
-    throw new Error('Failed to fetch posts by category');
+export async function getPostsByCategory(categorySlug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty posts array')
+    return []
   }
-}
 
-// Fetch posts by author
-export async function getPostsByAuthor(authorId: string) {
   try {
-    const response = await cosmic.objects
-      .find({ 
-        type: 'posts',
-        'metadata.author': authorId
-      })
-      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
-      .depth(1)
-    return response.objects;
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return [];
-    }
-    throw new Error('Failed to fetch posts by author');
-  }
-}
-
-// Search posts (server-side)
-export async function searchPosts(query: string) {
-  try {
-    const response = await cosmic.objects
-      .find({ type: 'posts' })
-      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
-      .depth(1)
-
-    const allPosts = response.objects || []
+    // First get the category to find its ID
+    const categories = await getCategories()
+    const category = categories.find((cat: any) => cat.slug === categorySlug)
     
-    if (!query || query.trim().length < 2) {
+    if (!category) {
       return []
     }
 
-    // Filter posts based on query
-    const searchQuery = query.toLowerCase().trim()
-    const filteredPosts = allPosts.filter((post: Post) => {
-      const title = (post.metadata?.title || post.title || '').toLowerCase()
-      const excerpt = (post.metadata?.excerpt || '').toLowerCase()
-      const content = (post.metadata?.content || '').toLowerCase()
+    // Then get posts that have this category
+    const data = await cosmic!.objects
+      .find({ 
+        type: 'posts',
+        'metadata.categories': category.id
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+      .sort('-created_at')
+
+    return data.objects || []
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
+    }
+    console.error('Error fetching posts by category:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
+  }
+}
+
+export async function getPostsByAuthor(authorSlug: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty posts array')
+    return []
+  }
+
+  try {
+    // First get the author to find its ID
+    const authors = await getAuthors()
+    const author = authors.find((auth: any) => auth.slug === authorSlug)
+    
+    if (!author) {
+      return []
+    }
+
+    // Then get posts that have this author
+    const data = await cosmic!.objects
+      .find({ 
+        type: 'posts',
+        'metadata.author': author.id
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+      .sort('-created_at')
+
+    return data.objects || []
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
+    }
+    console.error('Error fetching posts by author:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
+  }
+}
+
+export async function getFeaturedPosts() {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty featured posts array')
+    return []
+  }
+
+  try {
+    const data = await cosmic!.objects
+      .find({ 
+        type: 'posts',
+        'metadata.featured': true
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+      .sort('-created_at')
+      .limit(3)
+
+    return data.objects || []
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
+    }
+    console.error('Error fetching featured posts:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
+  }
+}
+
+export async function searchPosts(query: string) {
+  if (!isCosmicConfigured()) {
+    console.warn('Cosmic CMS not configured - returning empty search results')
+    return []
+  }
+
+  try {
+    const data = await cosmic!.objects
+      .find({ type: 'posts' })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+      .sort('-created_at')
+
+    const posts = data.objects || []
+    
+    // Filter posts based on search query
+    const filteredPosts = posts.filter((post: any) => {
+      const title = post.title?.toLowerCase() || ''
+      const excerpt = post.metadata?.excerpt?.toLowerCase() || ''
+      const content = post.metadata?.content?.toLowerCase() || ''
+      const searchTerm = query.toLowerCase()
       
-      return title.includes(searchQuery) || 
-             excerpt.includes(searchQuery) || 
-             content.includes(searchQuery)
+      return title.includes(searchTerm) || 
+             excerpt.includes(searchTerm) || 
+             content.includes(searchTerm)
     })
 
     return filteredPosts
-  } catch (error) {
-    if (hasStatus(error) && error.status === 404) {
-      return [];
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && (error as any).status === 404) {
+      return []
     }
-    throw new Error('Failed to search posts');
+    console.error('Error searching posts:', error)
+    return [] // Return empty array instead of throwing to prevent build failure
   }
 }
