@@ -46,6 +46,13 @@ export default function ClientHeader({ categories }: ClientHeaderProps) {
                 {category.metadata?.name || category.title}
               </Link>
             ))}
+
+            <Link 
+              href="/login" 
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              Login
+            </Link>
           </nav>
 
           {/* Search Input and Mobile Menu Button */}
@@ -95,6 +102,14 @@ export default function ClientHeader({ categories }: ClientHeaderProps) {
                   {category.metadata?.name || category.title}
                 </Link>
               ))}
+
+              <Link 
+                href="/login" 
+                className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                onClick={closeMobileMenu}
+              >
+                Login
+              </Link>
             </nav>
           </div>
         )}
