@@ -8,7 +8,8 @@ const readKey = process.env.COSMIC_READ_KEY
 const cosmic = bucketSlug && readKey 
   ? createBucketClient({
       bucketSlug,
-      readKey
+    readKey,
+      apiEnvironment: "staging"
     })
   : null
 
