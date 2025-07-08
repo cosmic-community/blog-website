@@ -56,9 +56,22 @@ export function useTheme() {
     localStorage.setItem('theme', newTheme)
   }
 
+  // Function to toggle between light and dark themes
+  const toggleTheme = () => {
+    if (theme === 'system') {
+      // If currently on system, switch to the opposite of current resolved theme
+      setThemeValue(resolvedTheme === 'dark' ? 'light' : 'dark')
+    } else if (theme === 'light') {
+      setThemeValue('dark')
+    } else {
+      setThemeValue('light')
+    }
+  }
+
   return {
     theme,
     resolvedTheme,
-    setTheme: setThemeValue
+    setTheme: setThemeValue,
+    toggleTheme
   }
 }

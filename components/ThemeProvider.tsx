@@ -7,6 +7,7 @@ interface ThemeContextType {
   theme: Theme
   resolvedTheme: 'light' | 'dark'
   setTheme: (theme: Theme) => void
+  toggleTheme: () => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -28,6 +29,20 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       root.classList.remove('dark')
     }
   }, [themeData.resolvedTheme])
+
+  // Add keyboard shortcut for theme toggle
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for Cmd+/ on Mac or Ctrl+/ on Windows/Linux
+      if ((event.metaKey || event.ctrlKey) && event.key === '/') {
+        event.preventDefault()
+        themeData.toggleTheme()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [themeData])
 
   return (
     <ThemeContext.Provider value={themeData}>
