@@ -14,6 +14,7 @@ export default function SearchInput({ onResultClick }: SearchInputProps) {
   const [results, setResults] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
   const router = useRouter()
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -23,6 +24,7 @@ export default function SearchInput({ onResultClick }: SearchInputProps) {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowResults(false)
+        setSelectedIndex(-1)
       }
     }
 
@@ -31,6 +33,11 @@ export default function SearchInput({ onResultClick }: SearchInputProps) {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  // Reset selected index when results change
+  useEffect(() => {
+    setSelectedIndex(-1)
+  }, [results])
 
   // Search for posts
   useEffect(() => {
@@ -62,24 +69,70 @@ export default function SearchInput({ onResultClick }: SearchInputProps) {
   }, [query])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      if (query.trim()) {
-        router.push(`/search?q=${encodeURIComponent(query)}`)
+    if (!showResults) return
+
+    const maxIndex = Math.min(results.length - 1, 4) // Max 5 results shown (0-4)
+    const hasViewAllOption = results.length > 5
+    const totalOptions = Math.min(results.length, 5) + (hasViewAllOption ? 1 : 0)
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setSelectedIndex(prev => 
+          prev < totalOptions - 1 ? prev + 1 : prev
+        )
+        break
+      
+      case 'ArrowUp':
+        e.preventDefault()
+        setSelectedIndex(prev => prev > -1 ? prev - 1 : prev)
+        break
+      
+      case 'Enter':
+        e.preventDefault()
+        if (selectedIndex === -1) {
+          // No item selected, perform regular search
+          if (query.trim()) {
+            router.push(`/search?q=${encodeURIComponent(query)}`)
+            setShowResults(false)
+            setSelectedIndex(-1)
+            inputRef.current?.blur()
+          }
+        } else if (selectedIndex < Math.min(results.length, 5)) {
+          // Navigate to selected post
+          const selectedPost = results[selectedIndex]
+          if (selectedPost) {
+            router.push(`/posts/${selectedPost.slug}`)
+            handleResultClick()
+          }
+        } else {
+          // View all results option selected
+          router.push(`/search?q=${encodeURIComponent(query)}`)
+          handleResultClick()
+        }
+        break
+      
+      case 'Escape':
         setShowResults(false)
+        setSelectedIndex(-1)
         inputRef.current?.blur()
-      }
-    }
-    if (e.key === 'Escape') {
-      setShowResults(false)
-      inputRef.current?.blur()
+        break
     }
   }
 
   const handleResultClick = () => {
     setShowResults(false)
+    setSelectedIndex(-1)
     setQuery('')
     onResultClick?.()
+  }
+
+  const handleMouseEnter = (index: number) => {
+    setSelectedIndex(index)
+  }
+
+  const handleViewAllMouseEnter = () => {
+    setSelectedIndex(Math.min(results.length, 5))
   }
 
   return (
@@ -119,12 +172,17 @@ export default function SearchInput({ onResultClick }: SearchInputProps) {
             </div>
           ) : results.length > 0 ? (
             <>
-              {results.slice(0, 5).map((post) => (
+              {results.slice(0, 5).map((post, index) => (
                 <Link
                   key={post.id}
                   href={`/posts/${post.slug}`}
                   onClick={handleResultClick}
-                  className="block p-4 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 last:border-b-0"
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  className={`block p-4 border-b border-gray-100 dark:border-gray-600 last:border-b-0 ${
+                    selectedIndex === index
+                      ? 'bg-blue-50 dark:bg-blue-900/20'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
                 >
                   <div className="flex items-start space-x-3">
                     {post.metadata?.featured_image?.imgix_url && (
@@ -152,7 +210,12 @@ export default function SearchInput({ onResultClick }: SearchInputProps) {
                   <Link
                     href={`/search?q=${encodeURIComponent(query)}`}
                     onClick={handleResultClick}
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                    onMouseEnter={handleViewAllMouseEnter}
+                    className={`text-sm hover:underline ${
+                      selectedIndex === Math.min(results.length, 5)
+                        ? 'text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded'
+                        : 'text-blue-600 dark:text-blue-400'
+                    }`}
                   >
                     View all {results.length} results
                   </Link>
